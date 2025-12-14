@@ -1,0 +1,21 @@
+{
+    "name": "mahdi-mh/fallback-chain",
+    "description": "A lightweight PHP package for building fallback chains with callable handlers and failure callbacks.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "MahdiMh\\FallbackChain\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mahdi Mohammadi",
+            "email": "lord2350.mm@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+      "php": "^7.1"
+    }
+}
