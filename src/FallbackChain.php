@@ -33,9 +33,9 @@ class FallbackChain
     /**
      * Create a new fallback chain with the given context.
      *
-     * @param mixed $context The shared context passed to all handlers and callbacks
+     * @param mixed|null $context The shared context passed to all handlers and callbacks
      */
-    public function __construct($context)
+    public function __construct($context = null)
     {
         $this->context = $context;
     }
