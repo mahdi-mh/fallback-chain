@@ -72,7 +72,13 @@ class FallbackChain
 
                 $onFailure = $stage->getOnFailure();
                 if ($onFailure !== null) {
-                    $onFailure($e, $this->context);
+                    try {
+                        $onFailure($e, $this->context);
+                    } catch (Throwable $onFailureException) {
+                        // Add the onFailure exception to the exceptions list
+                        // but continue with the next stage
+                        $exceptions[] = $onFailureException;
+                    }
                 }
             }
         }
