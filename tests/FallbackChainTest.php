@@ -22,6 +22,48 @@ class FallbackChainTest extends TestCase
         $this->assertInstanceOf(FallbackChain::class, $chain);
     }
 
+    public function testCanCreateChainWithoutContext(): void
+    {
+        $chain = new FallbackChain();
+
+        $this->assertInstanceOf(FallbackChain::class, $chain);
+    }
+
+    public function testNullContextIsPassedToHandlers(): void
+    {
+        $receivedContext = 'not-null';
+        $chain = new FallbackChain();
+
+        $chain->add(Stage::handler(function ($ctx) use (&$receivedContext) {
+            $receivedContext = $ctx;
+            return 'done';
+        }));
+
+        $chain->execute();
+
+        $this->assertNull($receivedContext);
+    }
+
+    public function testNullContextIsPassedToOnFailureCallbacks(): void
+    {
+        $receivedContext = 'not-null';
+        $chain = new FallbackChain();
+
+        $chain
+            ->add(Stage::handler(function ($ctx) {
+                throw new Exception('Stage failed');
+            })->onFailure(function ($e, $ctx) use (&$receivedContext) {
+                $receivedContext = $ctx;
+            }))
+            ->add(Stage::handler(function ($ctx) {
+                return 'fallback succeeded';
+            }));
+
+        $chain->execute();
+
+        $this->assertNull($receivedContext);
+    }
+
     public function testAddReturnsFluentInterface(): void
     {
         $chain = new FallbackChain([]);
