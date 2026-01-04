@@ -276,4 +276,49 @@ class FallbackChainTest extends TestCase
 
         $this->assertSame(0, $result);
     }
+
+    public function testExceptionInOnFailureDoesNotStopChain(): void
+    {
+        $chain = new FallbackChain([]);
+
+        $chain
+            ->add(Stage::handler(function ($ctx) {
+                throw new Exception('First stage failed');
+            })->onFailure(function ($e, $ctx) {
+                throw new RuntimeException('onFailure callback failed');
+            }))
+            ->add(Stage::handler(function ($ctx) {
+                return 'second stage succeeded';
+            }));
+
+        $result = $chain->execute();
+
+        $this->assertSame('second stage succeeded', $result);
+    }
+
+    public function testExceptionInOnFailureIsIncludedInAllStagesFailedException(): void
+    {
+        $chain = new FallbackChain([]);
+
+        $chain
+            ->add(Stage::handler(function ($ctx) {
+                throw new Exception('Handler failed');
+            })->onFailure(function ($e, $ctx) {
+                throw new RuntimeException('onFailure failed');
+            }))
+            ->add(Stage::handler(function ($ctx) {
+                throw new Exception('Second handler failed');
+            }));
+
+        try {
+            $chain->execute();
+            $this->fail('Expected AllStagesFailedException was not thrown');
+        } catch (AllStagesFailedException $e) {
+            $exceptions = $e->getExceptions();
+            $this->assertCount(3, $exceptions);
+            $this->assertSame('Handler failed', $exceptions[0]->getMessage());
+            $this->assertSame('onFailure failed', $exceptions[1]->getMessage());
+            $this->assertSame('Second handler failed', $exceptions[2]->getMessage());
+        }
+    }
 }
