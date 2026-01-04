@@ -39,8 +39,20 @@ class AllStagesFailedException extends RuntimeException
      *
      * @return Throwable[]
      */
-    public function getExceptions()
+    public function getExceptions(): array
     {
         return $this->exceptions;
+    }
+
+    /**
+     * Get all exceptions messages that occurred during chain execution.
+     *
+     * @return string[]
+     */
+    public function getExceptionsMessages(): array
+    {
+        return array_map(function (Throwable $throwable) {
+            return $throwable->getMessage();
+        }, array_values($this->exceptions));
     }
 }
