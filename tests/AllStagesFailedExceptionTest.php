@@ -9,7 +9,7 @@ use MahdiMh\FallbackChain\AllStagesFailedException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-class AllStagesFailedExceptionTest extends TestCase
+class lAllStagesFailedExceptionTest extends TestCase
 {
     public function testExtendsRuntimeException(): void
     {
@@ -57,5 +57,28 @@ class AllStagesFailedExceptionTest extends TestCase
         $exception = new AllStagesFailedException('All failed', [], $previous);
 
         $this->assertSame($previous, $exception->getPrevious());
+    }
+
+    public function testGetExceptionsMessages(): void
+    {
+        $exceptions = [
+            new Exception('First error'),
+            new RuntimeException('Second error'),
+            new Exception('Third error'),
+        ];
+
+        $exception = new AllStagesFailedException('All failed', $exceptions);
+
+        $this->assertSame(
+            ['First error', 'Second error', 'Third error'],
+            $exception->getExceptionsMessages()
+        );
+    }
+
+    public function testGetExceptionsMessagesReturnsEmptyArrayByDefault(): void
+    {
+        $exception = new AllStagesFailedException();
+
+        $this->assertSame([], $exception->getExceptionsMessages());
     }
 }
